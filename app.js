@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { sendNotFound } = require('./utils/error');
 
 const app = express();
 
@@ -24,6 +25,9 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(userRouter);
 app.use(cardRouter);
+app.use((req, res) => {
+  sendNotFound(res);
+})
 
 app.listen(3000, () => {
   console.log("Server started");
