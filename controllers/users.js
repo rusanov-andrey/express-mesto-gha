@@ -55,6 +55,10 @@ function updateProfile(req, res) {
     res.send(user);
   })
   .catch(err => {
+    if(err.name === 'ValidationError') {
+      sendBadRequest(res, err);
+      return
+    }
     sendInternalError(res, err);
   });
 }
@@ -70,6 +74,10 @@ function updateAvatar(req, res) {
     res.send(user);
   })
   .catch(err => {
+    if(err.name === 'ValidationError') {
+      sendBadRequest(res, err);
+      return
+    }
     sendInternalError(res, err);
   });
 }
