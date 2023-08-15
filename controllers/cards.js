@@ -36,6 +36,9 @@ function deleteCard(req, res) {
     res.send(card);
   })
   .catch(err => {
+    if(err.name === 'CastError') {
+      sendBadRequest(res, err);
+    }
     sendInternalError(res, err);
   });
 }
@@ -50,6 +53,9 @@ function addLike(req, res) {
     res.send(card);
   })
   .catch(err => {
+    if(err.name === 'CastError') {
+      sendBadRequest(res, err);
+    }
     sendInternalError(res, err);
   });
 }
@@ -64,6 +70,9 @@ function deleteLike(req, res) {
     res.send(card);
   })
   .catch(err => {
+    if(err.name === 'CastError') {
+      sendBadRequest(res, err);
+    }
     sendInternalError(res, err);
   });
 }
