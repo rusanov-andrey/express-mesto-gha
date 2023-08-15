@@ -1,16 +1,8 @@
-[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+# Проект: Место
 
+Проект рассказывает об интересных местах России. В данном репозитории находится серверная часть
 
-## Директории
+Сервер создан с использованием NodeJS и Express. Данные хранятся в MongoDB. 
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
-
-## Запуск проекта
-
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+[Заходите на сайт!](https://rusanov-andrey.github.io/mesto-react/index.html)
+[Репозиторий сервера](https://github.com/rusanov-andrey/express-mesto-gha)
