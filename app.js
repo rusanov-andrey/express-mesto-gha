@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 
-const { celebrate, Joi, celebrate_errors } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
@@ -47,7 +47,7 @@ app.use((req, res) => {
   sendNotFound(res);
 });
 
-app.use(celebrate_errors());
+app.use(errors());
 
 app.listen(3000, () => {
   console.log('Server started');
