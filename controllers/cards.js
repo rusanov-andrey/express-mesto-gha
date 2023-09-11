@@ -1,5 +1,7 @@
 const Card = require('../models/card');
-const { sendNotFound, sendBadRequest, sendInternalError } = require('../utils/error');
+const {
+  sendNotFound, sendForbiden, sendBadRequest, sendInternalError,
+} = require('../utils/error');
 
 function getCards(req, res) {
   Card.find({})
@@ -26,14 +28,19 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findOneById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        sendNotFound(res);
-        return;
+        return sendNotFound(res);
       }
-      res.send(card);
+
+      if (card.owner !== req.user._id) {
+        return sendForbiden(res);
+      }
+
+      return Card.findOneById(req.params.cardId);
     })
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         sendBadRequest(res);

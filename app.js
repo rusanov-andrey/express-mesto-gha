@@ -4,22 +4,16 @@ const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 
+const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { sendNotFound } = require('./utils/error');
+const { createUser, login } = require('./controllers/users');
 
 const app = express();
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
-});
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64db84b14173dc2565dc9be6',
-  };
-
-  next();
 });
 
 const limiter = rateLimit({
@@ -32,6 +26,11 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
+
+app.post('/signin', login);
+app.post('/signup', createUser);
+
+app.use(auth);
 app.use(userRouter);
 app.use(cardRouter);
 app.use((req, res) => {
