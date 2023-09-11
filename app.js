@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 
+const { celebrate, Joi, celebrate_errors } = require('celebrate');
+
 const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -28,7 +30,15 @@ app.use(helmet());
 app.use(bodyParser.json());
 
 app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  body: Joi.object.keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
+  }).unknown(true),
+}), createUser);
 
 app.use(auth);
 app.use(userRouter);
@@ -36,6 +46,8 @@ app.use(cardRouter);
 app.use((req, res) => {
   sendNotFound(res);
 });
+
+app.use(celebrate_errors());
 
 app.listen(3000, () => {
   console.log('Server started');
