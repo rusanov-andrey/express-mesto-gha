@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 
 const { celebrate, Joi, errors } = require('celebrate');
 
@@ -27,6 +28,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 app.use(helmet());
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.post('/signin', celebrate({
