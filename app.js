@@ -33,8 +33,8 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-app.post('/signin', postSigninValidation, login);
-app.post('/signup', postSignupValidation, createUser);
+app.post('/signin', postSigninValidation(), login);
+app.post('/signup', postSignupValidation(), createUser);
 
 app.use(auth);
 app.use(userRouter);
