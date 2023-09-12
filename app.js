@@ -12,6 +12,16 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { sendNotFound } = require('./utils/error');
 const { createUser, login } = require('./controllers/users');
+const v = require('./validators/validators').validator;
+const {
+  MestoError,
+  NotFoundError,
+  BadRequestError,
+  NotAuthorizedError,
+  ForbidenError,
+  ConflictError,
+  CommonError,
+} = require('./utils/error');
 
 const app = express();
 
@@ -33,17 +43,17 @@ app.use(bodyParser.json());
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    email: v.user.email,
+    password: v.user.password,
   }),
 }), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/https?:\/\/(www.)?[\dA-Za-z-._~:/?#[\]@!$&'()*+,;=]*#?/),
+    email: v.user.email,
+    password: v.user.password,
+    name: v.user.name,
+    about: v.user.about,
+    avatar: v.user.avatar,
   }).unknown(true),
 }), createUser);
 
@@ -55,6 +65,19 @@ app.use((req, res) => {
 });
 
 app.use(errors());
+
+app.use((err, req, res, next) => {
+  console.log('err_111');
+  console.log(err);
+  let finalError = new CommonError(err.name);
+  if (err instanceof MestoError) {
+    finalError = err;
+  } else if ((err.name === 'ValidationError') || (err.name === 'CastError')) {
+    finalError = new BadRequestError();
+  }
+
+  return res.status(finalError.code).send({ message: finalError.message });
+});
 
 app.listen(3000, () => {
   console.log('Server started');

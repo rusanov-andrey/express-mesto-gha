@@ -1,6 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
-
 const router = require('express').Router();
+
+const v = require('../validators/validators').validator;
 const {
   getUserss, createUser, getOneUser, getCurrentUser, updateProfile, updateAvatar,
 } = require('../controllers/users');
@@ -10,18 +11,18 @@ router.post('/users', createUser);
 router.get('/users/me', getCurrentUser);
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required().regex(/[\da-z]{24}/),
+    userId: v._id,
   }),
 }), getOneUser);
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: v.user.name,
+    about: v.user.about,
   }).unknown(true),
 }), updateProfile);
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().regex(/https?:\/\/(www.)?[\dA-Za-z-._~:/?#[\]@!$&'()*+,;=]*#?/),
+    avatar: v.user.avatar,
   }).unknown(true),
 }), updateAvatar);
 

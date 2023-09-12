@@ -1,41 +1,37 @@
 const Card = require('../models/card');
 const {
-  sendNotFound, sendForbiden, sendBadRequest, sendInternalError,
+  NotFoundError,
+  ForbidenError,
+  CommonError,
 } = require('../utils/error');
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   Card.find({})
     .then((cards) => res.send(cards))
     .catch((err) => {
-      sendInternalError(res, err);
+      next(new CommonError(err.name));
     });
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
       res.status(201).send(card);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return sendNotFound(res);
+        throw new NotFoundError();
       }
 
       if (card.owner.toString() !== req.user._id) {
-        return sendForbiden(res);
+        throw new ForbidenError();
       }
 
       return Card.findByIdAndRemove(req.params.cardId);
@@ -45,16 +41,10 @@ function deleteCard(req, res) {
         res.send(card);
       }
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function addLike(req, res) {
+function addLike(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -62,21 +52,14 @@ function addLike(req, res) {
   )
     .then((card) => {
       if (!card) {
-        sendNotFound(res);
-        return;
+        throw new NotFoundError();
       }
       res.send(card);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function deleteLike(req, res) {
+function deleteLike(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -84,18 +67,11 @@ function deleteLike(req, res) {
   )
     .then((card) => {
       if (!card) {
-        sendNotFound(res);
-        return;
+        throw new NotFoundError();
       }
       res.send(card);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
 module.exports = {
