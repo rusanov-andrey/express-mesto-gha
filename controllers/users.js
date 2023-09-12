@@ -3,18 +3,17 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const {
-  sendNotFound, sendBadRequest, sendUnauthorized, sendConflict, sendInternalError,
+  NotFoundError,
+  NotAuthorizedError,
 } = require('../utils/error');
 
-function getUserss(req, res) {
+function getUserss(req, res, next) {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -24,35 +23,18 @@ function createUser(req, res) {
       name, about, avatar, email, password: hash,
     }))
     .then((user) => res.status(201).send({ ...(user.toObject()), password: undefined }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        sendBadRequest(res);
-        return;
-      }
-      if (err.code === 11000) {
-        sendConflict(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function getOneUser(req, res) {
+function getOneUser(req, res, next) {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        sendNotFound(res);
-        return;
+        throw new NotFoundError();
       }
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
 function getCurrentUser(req, res) {
@@ -60,45 +42,31 @@ function getCurrentUser(req, res) {
   getOneUser(req, res);
 }
 
-function updateProfile(req, res) {
+function updateProfile(req, res, next) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        sendNotFound(res);
-        return;
+        throw new NotFoundError();
       }
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        sendNotFound(res);
-        return;
+        throw new NotFoundError();
       }
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        sendBadRequest(res);
-        return;
-      }
-      sendInternalError(res, err);
-    });
+    .catch(next);
 }
 
-function login(req, res) {
+function login(req, res, next) {
   const { email, password } = req.body;
 
   let userId = null;
@@ -120,7 +88,7 @@ function login(req, res) {
       return res.send({});
     })
     .catch(() => {
-      sendUnauthorized(res);
+      next(new NotAuthorizedError());
     });
 }
 

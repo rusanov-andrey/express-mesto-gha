@@ -15,10 +15,7 @@ const { createUser, login } = require('./controllers/users');
 const v = require('./validators/validators').validator;
 const {
   MestoError,
-  NotFoundError,
   BadRequestError,
-  NotAuthorizedError,
-  ForbidenError,
   ConflictError,
   CommonError,
 } = require('./utils/error');
@@ -66,6 +63,7 @@ app.use((req, res) => {
 
 app.use(errors());
 
+/* eslint-disable no-unused-vars */
 app.use((err, req, res, next) => {
   console.log('err_111');
   console.log(err);
@@ -74,6 +72,8 @@ app.use((err, req, res, next) => {
     finalError = err;
   } else if ((err.name === 'ValidationError') || (err.name === 'CastError')) {
     finalError = new BadRequestError();
+  } else if (err.code === 11000) {
+    finalError = new ConflictError();
   }
 
   return res.status(finalError.code).send({ message: finalError.message });
