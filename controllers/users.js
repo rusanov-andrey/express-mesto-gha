@@ -102,7 +102,7 @@ function login(req, res) {
   const { email, password } = req.body;
 
   let userId = null;
-  User.findOne({ email }).select('+password')
+  User.findOne({ email }).select('password')
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
@@ -115,11 +115,8 @@ function login(req, res) {
       if (!matched) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      const token = jwt.sign({ _id: userId }, 'some-secret-key', {
-        expiresIn: '7d',
-        httpOnly: true,
-      });
-      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7 });
+      const token = jwt.sign({ _id: userId }, 'some-secret-key', { expiresIn: '7d' });
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true });
       return res.send({});
     })
     .catch(() => {
