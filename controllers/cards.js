@@ -34,13 +34,17 @@ function deleteCard(req, res) {
         return sendNotFound(res);
       }
 
-      if (card.owner !== req.user._id) {
+      if (card.owner.toString() !== req.user._id) {
         return sendForbiden(res);
       }
 
       return Card.findByIdAndRemove(req.params.cardId);
     })
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!res.writableEnded) {
+        res.send(card);
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         sendBadRequest(res);
