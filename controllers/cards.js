@@ -28,7 +28,7 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
-  Card.findOneById(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         return sendNotFound(res);
@@ -38,7 +38,7 @@ function deleteCard(req, res) {
         return sendForbiden(res);
       }
 
-      return Card.findOneById(req.params.cardId);
+      return Card.findByIdAndRemove(req.params.cardId);
     })
     .then((card) => res.send(card))
     .catch((err) => {
