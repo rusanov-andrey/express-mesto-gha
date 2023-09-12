@@ -14,8 +14,12 @@ function sendForbiden(res) {
   return res.status(403).send({ message: 'Нет прав' });
 }
 
+function sendConflict(res) {
+  return res.status(409).send({ message: 'Нарушена уникальность' });
+}
+
 function sendInternalError(res, err) {
-  return res.status(500).send({ message: `Ошибка сервера ${err.name}` });
+  return res.status(500).send({ message: `Ошибка сервера ${err.name} [${err.code}]` });
 }
 
 module.exports = {
@@ -23,5 +27,6 @@ module.exports = {
   sendBadRequest,
   sendUnauthorized,
   sendForbiden,
+  sendConflict,
   sendInternalError,
 };

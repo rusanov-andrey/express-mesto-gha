@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const {
-  sendNotFound, sendBadRequest, sendUnauthorized, sendInternalError,
+  sendNotFound, sendBadRequest, sendUnauthorized, sendConflict, sendInternalError,
 } = require('../utils/error');
 
 function getUserss(req, res) {
@@ -23,11 +23,14 @@ function createUser(req, res) {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({ ...(user.toObject()), password: undefined }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err);
         sendBadRequest(res);
+        return;
+      }
+      if (err.code === 11000) {
+        sendConflict(res);
         return;
       }
       sendInternalError(res, err);
