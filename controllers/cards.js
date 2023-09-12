@@ -34,7 +34,7 @@ function deleteCard(req, res, next) {
         throw new ForbidenError();
       }
 
-      return Card.findByIdAndRemove(req.params.cardId);
+      return Card.deleteOne(card);
     })
     .then((card) => {
       if (!res.writableEnded) {

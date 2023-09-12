@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const mailValidator = require('validator');
+const { uriRegExp } = require('../utils/uri');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -22,8 +23,7 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-        const reg = /https?:\/\/(www.)?[\dA-Za-z-._~:/?#[\]@!$&'()*+,;=]*#?/;
-        return v.match(reg).length;
+        return v.match(uriRegExp).length;
       },
     },
   },
@@ -40,7 +40,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
